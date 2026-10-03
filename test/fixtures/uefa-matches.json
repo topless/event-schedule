@@ -1,0 +1,104 @@
+[
+  {
+    "id": "2047951",
+    "status": "FINISHED",
+    "homeTeam": {
+      "internationalName": "Greece"
+    },
+    "awayTeam": {
+      "internationalName": "Netherlands"
+    },
+    "competition": {
+      "metaData": {
+        "name": "UEFA Nations League"
+      }
+    },
+    "kickOffTime": {
+      "date": "2026-10-01",
+      "dateTime": "2026-10-01T18:45:00Z",
+      "utcOffsetInHours": 3
+    },
+    "stadium": {
+      "translations": {
+        "officialName": {
+          "EN": "Toumba Stadium"
+        }
+      },
+      "city": {
+        "translations": {
+          "name": {
+            "EN": "Thessaloniki"
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "2047926",
+    "status": "UPCOMING",
+    "homeTeam": {
+      "internationalName": "Greece"
+    },
+    "awayTeam": {
+      "internationalName": "Germany"
+    },
+    "competition": {
+      "metaData": {
+        "name": "UEFA Nations League"
+      }
+    },
+    "kickOffTime": {
+      "date": "2026-10-04",
+      "dateTime": "2026-10-04T18:45:00Z",
+      "utcOffsetInHours": 3
+    },
+    "stadium": {
+      "translations": {
+        "officialName": {
+          "EN": "Toumba Stadium"
+        }
+      },
+      "city": {
+        "translations": {
+          "name": {
+            "EN": "Thessaloniki"
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "2047886",
+    "status": "UPCOMING",
+    "homeTeam": {
+      "internationalName": "Netherlands"
+    },
+    "awayTeam": {
+      "internationalName": "Greece"
+    },
+    "competition": {
+      "metaData": {
+        "name": "UEFA Nations League"
+      }
+    },
+    "kickOffTime": {
+      "date": "2026-11-13",
+      "dateTime": "2026-11-13T19:45:00Z",
+      "utcOffsetInHours": 1
+    },
+    "stadium": {
+      "translations": {
+        "officialName": {
+          "EN": "Johan Cruijff ArenA"
+        }
+      },
+      "city": {
+        "translations": {
+          "name": {
+            "EN": "Amsterdam"
+          }
+        }
+      }
+    }
+  }
+]
