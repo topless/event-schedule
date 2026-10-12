@@ -44,9 +44,11 @@ test('calendar has a timed event in UTC and an all-day placeholder while the tim
   assert.ok(lines.includes('DTEND:20261004T204500Z'))
   assert.ok(lines.includes('SUMMARY:Greece v Germany'))
   assert.ok(lines.includes('LOCATION:Toumba Stadium\\, Thessaloniki'))
+  assert.ok(lines.includes('TRIGGER:-PT1H'))
   assert.ok(lines.includes('UID:fiba-2@event-schedule'))
   assert.ok(lines.includes('DTSTART;VALUE=DATE:20261126'))
   assert.ok(lines.includes('SUMMARY:Greece v Georgia (time TBC)'))
+  assert.equal(lines.filter((l) => l === 'BEGIN:VALARM').length, 1)
 })
 
 test('page shows venue-local time, escapes text and links the calendars', () => {

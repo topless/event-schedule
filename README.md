@@ -47,6 +47,9 @@ npm run build
 - Calendar apps refresh subscribed feeds on their own schedule; Google Calendar can take a day. On a Mac,
   choose "Every day" for auto-refresh when subscribing; the default is reportedly weekly.
 - Subscribing in Google Calendar only works in a computer browser, not in the phone app.
+- Each timed game carries a reminder one hour before kickoff. Apple Calendar shows it unless "Remove alarms"
+  is on for the subscription; Google Calendar is believed to ignore embedded reminders, but lets you set a
+  notification for the whole calendar in its settings. Outlook is unverified.
 - GitHub disables scheduled workflows after 60 days without repository activity and sends a warning email
   first. Push any commit or click "Enable workflow" under Actions to resume. The "Last checked" date on the
   page shows whether the job is still running.
