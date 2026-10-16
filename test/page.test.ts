@@ -96,3 +96,27 @@ test('nothing a fan reads breaks the voice rules', () => {
     assert.doesNotMatch(text, /\bv\b/)
   }
 })
+
+test('landing lists all six teams, each in its own colours', () => {
+  const html = renderLanding(teams.map((team) => ({ team, games: [] })), now)
+  assert.equal(html.match(/<a class="card" href="/g)?.length, 6)
+  for (const team of teams) {
+    const [first, second] = team.colours
+    assert.match(html, new RegExp(`<a class="card" href="${team.country}/${team.sport}/" style="--stripe: repeating-linear-gradient\\(90deg, ${first} 0px 18px, ${second} 18px 36px`))
+    assert.ok(html.includes(`<p class="card-title">${team.name}</p>`), team.name)
+  }
+  assert.match(html, /Updated daily from UEFA and FIBA/)
+})
+
+test('a new team page shows its flag, its own feed and links every other team', () => {
+  const spain = teams.find((team) => team.country === 'spain' && team.sport === 'basketball')!
+  const html = renderTeamPage({ team: spain, games: [] }, teams, now, site)
+  assert.match(html, /<img src="\.\.\/\.\.\/flag-es\.svg" width="24" height="16" alt="">/)
+  assert.match(html, /National team · Men's basketball/)
+  assert.match(html, /<h1>Spain basketball, in your calendar\.<\/h1>/)
+  assert.match(html, /<a class="btn-primary" href="webcal:\/\/example\.github\.io\/scarf\/spain\/basketball\.ics">/)
+  assert.equal(html.match(/class="team-chip"/g)?.length, 6)
+  assert.match(html, /href="\.\.\/\.\.\/spain\/basketball\/" style="[^"]*#AA151B[^"]*" aria-current="page"/)
+  assert.match(html, /href="\.\.\/\.\.\/denmark\/basketball\/" style="[^"]*#C60C30[^"]*"/)
+  assert.match(html, /Updated daily from FIBA\./)
+})

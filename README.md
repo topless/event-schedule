@@ -4,15 +4,17 @@ Your colours, in your calendar. scarf publishes one subscribable calendar feed p
 every game with kickoff, venue, TV channel and ticket link, and a reminder an hour before. Fans
 subscribe once, and the calendar they already use keeps itself up to date. Fans, not fanatics.
 
-Teams so far: Greece men's football and basketball. The identity, the exact calendar-event copy and
-the backlog come from the design handover: [HANDOVER.md](HANDOVER.md), [docs/brand.md](docs/brand.md),
-[docs/calendar-event-spec.md](docs/calendar-event-spec.md), [docs/issues.md](docs/issues.md).
+Teams so far: the men's football and basketball teams of Greece, Spain and Denmark. The identity, the
+exact calendar-event copy and the backlog come from the design handover: [HANDOVER.md](HANDOVER.md),
+[docs/brand.md](docs/brand.md), [docs/calendar-event-spec.md](docs/calendar-event-spec.md),
+[docs/issues.md](docs/issues.md).
 
 ## How it works
 
 The "Build feeds" GitHub Actions job runs `npm run build` once a day. The build:
 
-1. fetches each team's games from the official source (UEFA for football, FIBA for basketball);
+1. fetches the games from the official sources: one UEFA request for every football team, and one FIBA
+   page per basketball competition, shared by the teams playing in it;
 2. adds what no source provides (TV channel, ticket link) from [src/config.ts](src/config.ts) and [src/manual.ts](src/manual.ts);
 3. writes one `dist/{country}/{sport}.ics` per team and `dist/index.html`, which GitHub Pages serves.
 
@@ -50,14 +52,16 @@ npm run build
   The id is the first part of the event's `UID` in the calendar file, for example `fiba-127107`.
   Time and venue entered by hand are used only until the official source has its own.
 - **A new team** is one more entry in [src/config.ts](src/config.ts): country and sport slugs, the stripe
-  colours from [docs/brand.md](docs/brand.md), and a UEFA team id for football or a FIBA event and team
-  code for basketball. Each new basketball competition needs its own FIBA event.
+  colours from [docs/brand.md](docs/brand.md), a flag in `assets/`, and a UEFA team id for football or a
+  FIBA event and team code for basketball. A football team costs no extra request; a basketball team in a
+  competition that is already fetched costs none either, and each new basketball competition costs one.
 
 ## Known limits
 
 - The UEFA endpoint and the FIBA page are undocumented and can change without notice. Their terms do not
-  allow automated collection, so this stays a small friends-only tool: one request per source per run
-  (the daily run, plus one run per push to `main`).
+  allow automated collection, so this stays a small friends-only tool: per run (the daily run, plus one
+  run per push to `main`) one UEFA request for all football teams together and one FIBA request per
+  basketball competition.
 - Calendar apps refresh subscribed feeds on their own schedule; Google Calendar can take a day. On a Mac,
   choose "Every day" for auto-refresh when subscribing; the default is reportedly weekly.
 - Subscribing in Google Calendar only works in a computer browser, not in the phone app.
