@@ -1,5 +1,8 @@
 # The calendar event — copy spec
 
+Team names are joined with "vs" ("Greece vs Serbia"): decided by Chris on 2026-10-17; the design
+originally wrote "v".
+
 This is the surface every subscriber sees, every match week. No logo lives here; the brand is the
 team's colour and the voice. All strings below are exact. `{canonical}` is the canonical domain
 (until it exists: `topless.github.io/scarf`).
@@ -22,12 +25,12 @@ Calendar name: team first, brand last, lowercase. Colour: the team's first strip
 | Field | Value |
 |---|---|
 | `UID` | source id, e.g. `uefa-<matchId>@scarf` — never changes |
-| `SUMMARY` | `Greece v Serbia` — home team first as the federation lists it; no competition, sport or emoji |
+| `SUMMARY` | `Greece vs Serbia` — home team first as the federation lists it; no competition, sport or emoji |
 | `DTSTART`/`DTEND` | UTC; duration 2 h (football and basketball alike) |
 | `LOCATION` | `Panthessaliko Stadium, Volos, Greece` — full venue, city, country |
 | `URL` | ticket link while on sale, else the team page |
 | `DESCRIPTION` | template below |
-| `VALARM` | `TRIGGER:-PT60M`, `DESCRIPTION:Greece v Serbia kicks off in an hour · Alpha, Novasports` |
+| `VALARM` | `TRIGGER:-PT60M`, `DESCRIPTION:Greece vs Serbia kicks off in an hour · Alpha, Novasports` |
 
 ```
 UEFA Nations League
@@ -40,7 +43,7 @@ Kept up to date by scarf · {canonical}/greece/football
 
 Rules: six lines at most; the TV line is dropped when unknown rather than filled with a guess;
 the ticket line is dropped until a link exists; the footer is the only place the brand name appears.
-In a combined personal feed the summary gains a sport suffix: `Greece v Serbia · football`.
+In a combined personal feed the summary gains a sport suffix: `Greece vs Serbia · football`.
 
 ## 2 · Time not announced (all-day placeholder)
 
@@ -48,7 +51,7 @@ Same `UID` as the eventual timed game, so the placeholder turns into the game in
 
 | Field | Value |
 |---|---|
-| `SUMMARY` | `Greece v Ukraine · time not announced` |
+| `SUMMARY` | `Greece vs Ukraine · time not announced` |
 | `DTSTART;VALUE=DATE` | the announced date |
 | `DESCRIPTION` | see below |
 
@@ -67,9 +70,9 @@ All-day event on the day sales open, driven by a manual `onSale` date in `src/ma
 | Field | Value |
 |---|---|
 | `UID` | `<game uid>-tickets@scarf` |
-| `SUMMARY` | `Tickets on sale · Greece v Serbia` |
+| `SUMMARY` | `Tickets on sale · Greece vs Serbia` |
 | `URL` | the ticket link |
-| `VALARM` | `TRIGGER;VALUE=DATE-TIME` at 09:00 local on that day, `DESCRIPTION:Tickets for Greece v Serbia go on sale today · pame-ethniki.gr` |
+| `VALARM` | `TRIGGER;VALUE=DATE-TIME` at 09:00 local on that day, `DESCRIPTION:Tickets for Greece vs Serbia go on sale today · pame-ethniki.gr` |
 
 ```
 Sales open today at pame-ethniki.gr
@@ -86,7 +89,7 @@ All-day event on the day the build first sees a new `UID`. Only in the `-alerts`
 | Field | Value |
 |---|---|
 | `UID` | `<game uid>-new@scarf` |
-| `SUMMARY` | `New game · Georgia v Greece, 1 Mar 2027` |
+| `SUMMARY` | `New game · Georgia vs Greece, 1 Mar 2027` |
 
 ```
 Just announced by FIBA. It's already in this calendar — time and arena to follow.
