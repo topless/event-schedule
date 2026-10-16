@@ -5,6 +5,7 @@ import { byStart, withDetails, type Game } from './game.ts'
 import { toIcs } from './ics.ts'
 import { manual } from './manual.ts'
 import { renderLanding, renderTeamPage, type Section } from './page.ts'
+import { canonicalHost, resolveSiteUrl } from './site.ts'
 import { fetchUefaGames } from './uefa.ts'
 
 // Fetches every team's upcoming games and writes one calendar feed and one page per team, the
@@ -13,7 +14,7 @@ import { fetchUefaGames } from './uefa.ts'
 
 const now = new Date()
 const today = now.toISOString().slice(0, 10)
-const siteUrl = process.env.SITE_URL?.replace(/\/$/, '')
+const siteUrl = resolveSiteUrl(process.env)
 
 function fetchGames(team: Team): Promise<Game[]> {
   const { source } = team
@@ -37,5 +38,8 @@ for (const section of sections) {
   const { country, sport } = section.team
   await writeFile(`dist/${country}/${sport}/index.html`, renderTeamPage(section, teams, now, siteUrl))
 }
-await writeFile('dist/index.html', renderLanding(sections, now))
+await writeFile('dist/index.html', renderLanding(sections, now, siteUrl))
+// CNAME is how a Pages site records its custom domain, so it exists only once the domain does.
+const host = canonicalHost(process.env)
+if (host) await writeFile('dist/CNAME', `${host}\n`)
 await cp('assets', 'dist', { recursive: true })

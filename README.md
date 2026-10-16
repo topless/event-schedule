@@ -33,6 +33,33 @@ replaces the old entry instead of duplicating it.
 The repository must be public (GitHub Pages on a free plan). In the repository settings, under
 Pages, set the source to "GitHub Actions"; the first run fails until that is done.
 
+## Domains
+
+Until the custom domain exists, builds have no `CANONICAL_HOST` and keep working on
+`https://topless.github.io/scarf`. That address is printed wherever a fan can see a URL: the subscribe
+links and the paste field on each team page, the `<link rel="canonical">` in the head of every page,
+and the footer of every calendar event.
+
+The plan is one canonical domain and one secondary domain, with a single source of truth:
+
+- **The canonical domain** is set as the custom domain on GitHub Pages and is the host in every
+  printed URL. Once it is set on the repository, GitHub Pages answers the old `github.io` addresses
+  with a 301 redirect to the same path on the canonical domain. Subscriptions made on `github.io`
+  keep working because the feed paths are identical on both hosts, which is why the paths are frozen.
+- **The secondary domain** is forwarded at the registrar with a 301 redirect, path preserved, to the
+  canonical domain. Nothing is hosted there, and it is never printed anywhere: not in the feeds, not
+  on the pages, not in this README.
+
+To switch it on, once the domain is bought:
+
+1. In the repository settings, under Pages, set the custom domain and let GitHub check the DNS.
+2. Add a repository variable `CANONICAL_HOST` holding the bare host, for example `scarf.fan`: no
+   scheme, no path. The "Build feeds" workflow passes it to the build, which fails on anything else.
+3. Run the workflow from the Actions tab, or wait for the daily run. The build prints every URL from
+   the new host and writes the host to `dist/CNAME`. With a GitHub Actions deployment GitHub ignores
+   that file and goes by the Pages setting, so the file is a record of the domain, not what enables it.
+4. Check a feed address on `github.io` with `curl -I`: it should answer 301 with the canonical URL.
+
 ## Running it
 
 Needs Node 22.18 or newer.
