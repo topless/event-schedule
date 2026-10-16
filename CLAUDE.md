@@ -23,12 +23,12 @@ in your calendar." Principle: fans, not fanatics.
 ## ICS rules (see docs/calendar-event-spec.md for exact copy)
 
 - UIDs come from source ids and never change. Updates must land in place, never duplicate.
-- `SUMMARY`: `Home v Away` as the federation lists it; no competition, sport or emoji.
-  All-day placeholder while kickoff is unknown: `Home v Away · time not announced`.
+- `SUMMARY`: `Home vs Away` as the federation lists it; no competition, sport or emoji.
+  All-day placeholder while kickoff is unknown: `Home vs Away · time not announced`.
 - `DESCRIPTION`: competition · "Kickoff HH:MM in City" · "TV: …" · "Tickets: …" · blank line ·
   "Kept up to date by scarf · {canonical}/{country}/{sport}". Six lines max.
 - `LOCATION`: full venue, city, country. `DURATION`: 2 h. `URL`: ticket link while on sale, else team page.
-- `VALARM` 60 min before, description `"{Home} v {Away} kicks off in an hour · {TV}"`.
+- `VALARM` 60 min before, description `"{Home} vs {Away} kicks off in an hour · {TV}"`.
 - Header: `X-WR-CALNAME:{Team} {sport} · scarf`, `X-APPLE-CALENDAR-COLOR` = team's first stripe colour.
 
 ## Voice (applies to every string a fan can read)

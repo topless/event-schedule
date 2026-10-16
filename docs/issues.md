@@ -88,7 +88,7 @@ Labels: alerts, feeds — relates to #2
 
 **What.** Add an optional `onSale` date (and `ticketUrl`) per game in `src/manual.ts`. Emit an
 all-day event on that date with its own `UID` (`<game uid>-tickets@scarf`), summary
-`Tickets on sale · Home v Away`, 09:00 local alarm, description per spec. Drop it once the game is past.
+`Tickets on sale · Home vs Away`, 09:00 local alarm, description per spec. Drop it once the game is past.
 
 **Acceptance.** Fixture with an on-sale date produces exactly one extra event; removing the date
 removes it in place; copy matches the spec.

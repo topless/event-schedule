@@ -5,7 +5,7 @@ import { withDetails, type Game } from '../src/game.ts'
 import { toIcs } from '../src/ics.ts'
 
 const now = new Date('2026-10-02T06:00:00Z')
-const [football] = teams
+const [football, basketball] = teams
 
 const timed: Game = {
   id: 'uefa-1',
@@ -63,8 +63,90 @@ test('calendar has a timed event in UTC and an all-day placeholder while the tim
   assert.ok(lines.includes('TRIGGER:-PT1H'))
   assert.ok(lines.includes('UID:fiba-2@scarf'))
   assert.ok(lines.includes('DTSTART;VALUE=DATE:20261126'))
-  assert.ok(lines.includes('SUMMARY:Greece vs Georgia (time not announced)'))
+  assert.ok(lines.includes('SUMMARY:Greece vs Georgia · time not announced'))
   assert.equal(lines.filter((l) => l === 'BEGIN:VALARM').length, 1)
+})
+
+// One VEVENT, unfolded, with the stamp line dropped so the assertion reads like the spec.
+const vevent = (ics: string, uid: string) => {
+  const lines = icsLines(ics)
+  const start = lines.indexOf(`UID:${uid}`) - 1
+  return lines.slice(start, lines.indexOf('END:VEVENT', start) + 1).filter((l) => !l.startsWith('DTSTAMP:'))
+}
+
+// The spec's sample games (docs/calendar-event-spec.md), with "vs" between the teams.
+const serbia: Game = {
+  id: 'uefa-2047926',
+  competition: 'UEFA Nations League',
+  home: 'Greece',
+  away: 'Serbia',
+  date: '2026-11-16',
+  kickoff: '2026-11-16T19:45:00Z',
+  utcOffsetHours: 2,
+  venue: 'Panthessaliko Stadium',
+  city: 'Volos',
+  tv: 'Alpha, Novasports (Greek TV)',
+  tickets: 'https://www.pame-ethniki.gr/gnfc/showProductList.html',
+}
+const ukraine: Game = {
+  id: 'fiba-127100',
+  competition: 'FIBA Basketball World Cup 2027 European Qualifiers',
+  home: 'Greece',
+  away: 'Ukraine',
+  date: '2027-02-26',
+}
+
+test('a timed game reads as the spec writes it', () => {
+  assert.deepEqual(vevent(toIcs(football, [serbia], now), 'uefa-2047926@scarf'), [
+    'BEGIN:VEVENT',
+    'UID:uefa-2047926@scarf',
+    'SEQUENCE:0',
+    'DTSTART:20261116T194500Z',
+    'DTEND:20261116T214500Z',
+    'SUMMARY:Greece vs Serbia',
+    'LOCATION:Panthessaliko Stadium\\, Volos',
+    'DESCRIPTION:UEFA Nations League\\nKickoff 21:45 in Volos\\nTV: Alpha\\, Novasports (Greek TV)\\nTickets: pame-ethniki.gr\\n\\nKept up to date by scarf · topless.github.io/scarf/greece/football',
+    'BEGIN:VALARM',
+    'ACTION:DISPLAY',
+    'TRIGGER:-PT1H',
+    'DESCRIPTION:Greece vs Serbia kicks off in an hour · Alpha\\, Novasports',
+    'END:VALARM',
+    'URL;VALUE=URI:https://www.pame-ethniki.gr/gnfc/showProductList.html',
+    'END:VEVENT',
+  ])
+})
+
+test('a game without a time is an all-day placeholder that names the federation', () => {
+  assert.deepEqual(vevent(toIcs(basketball, [ukraine], now), 'fiba-127100@scarf'), [
+    'BEGIN:VEVENT',
+    'UID:fiba-127100@scarf',
+    'SEQUENCE:0',
+    'DTSTART;VALUE=DATE:20270226',
+    'X-MICROSOFT-CDO-ALLDAYEVENT:TRUE',
+    'X-MICROSOFT-MSNCALENDAR-ALLDAYEVENT:TRUE',
+    'SUMMARY:Greece vs Ukraine · time not announced',
+    "DESCRIPTION:FIBA Basketball World Cup 2027 European Qualifiers\\nVenue not announced\\nWe'll fill in the time and arena as soon as FIBA publishes them.\\n\\nKept up to date by scarf · topless.github.io/scarf/greece/basketball",
+    'URL;VALUE=URI:https://topless.github.io/scarf/greece/basketball/',
+    'END:VEVENT',
+  ])
+})
+
+test('unknown lines drop out, and the footer and team page follow the site URL', () => {
+  const bare: Game = { ...serbia, utcOffsetHours: undefined, tv: undefined, tickets: undefined }
+  const lines = vevent(toIcs(football, [bare], now, 'https://example.github.io/scarf'), 'uefa-2047926@scarf')
+  assert.ok(lines.includes('DESCRIPTION:UEFA Nations League\\n\\nKept up to date by scarf · example.github.io/scarf/greece/football'))
+  assert.ok(lines.includes('DESCRIPTION:Greece vs Serbia kicks off in an hour'))
+  assert.ok(lines.includes('URL;VALUE=URI:https://example.github.io/scarf/greece/football/'))
+})
+
+test('feed copy passes the voice checks', () => {
+  const ics = toIcs(football, [timed, unscheduled, serbia, ukraine], now).replaceAll(/\r\n[ \t]/g, '')
+  assert.doesNotMatch(ics, /!/)
+  assert.doesNotMatch(ics, /\p{Extended_Pictographic}/u)
+  assert.doesNotMatch(ics, /notification|don't miss|\bTBA\b|\bTBC\b/i)
+  const kickoffs = [...ics.matchAll(/Kickoff \d{2}:\d{2}(.{0,5})/g)]
+  assert.equal(kickoffs.length, 2)
+  for (const [, after] of kickoffs) assert.match(after, /^ in \S/)
 })
 
 test('nothing a fan reads carries the working title or a TBA', () => {
