@@ -28,7 +28,7 @@ for (const team of teams) {
     .map((game) => withDetails(game, team.defaults, manual[game.id]))
     .sort(byStart)
   await mkdir(`dist/${team.country}`, { recursive: true })
-  await writeFile(`dist/${feedPath(team)}`, toIcs(team, games, now))
+  await writeFile(`dist/${feedPath(team)}`, toIcs(team, games, now, siteUrl))
   sections.push({ team, games })
   console.log(`${team.name}: ${games.length} upcoming games`)
 }
