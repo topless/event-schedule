@@ -1,19 +1,32 @@
-# Event schedule
+# scarf
 
-Tracks the upcoming games of national teams so they are not missed: date and time, venue, TV channel
-and ticket link. It publishes one subscribable calendar feed per team and a small web page.
+Your colours, in your calendar. scarf publishes one subscribable calendar feed per national team:
+every game with kickoff, venue, TV channel and ticket link, and a reminder an hour before. Fans
+subscribe once, and the calendar they already use keeps itself up to date. Fans, not fanatics.
 
-Teams so far: Greece men's football and basketball. "Event schedule" is a working title.
+Teams so far: Greece men's football and basketball. The identity, the exact calendar-event copy and
+the backlog come from the design handover: [HANDOVER.md](HANDOVER.md), [docs/brand.md](docs/brand.md),
+[docs/calendar-event-spec.md](docs/calendar-event-spec.md), [docs/issues.md](docs/issues.md).
 
 ## How it works
 
-A scheduled GitHub Actions job runs `npm run build` once a day. The build:
+The "Build feeds" GitHub Actions job runs `npm run build` once a day. The build:
 
 1. fetches each team's games from the official source (UEFA for football, FIBA for basketball);
 2. adds what no source provides (TV channel, ticket link) from [src/config.ts](src/config.ts) and [src/manual.ts](src/manual.ts);
-3. writes `dist/<team>.ics` and `dist/index.html`, which GitHub Pages serves.
+3. writes one `dist/{country}/{sport}.ics` per team and `dist/index.html`, which GitHub Pages serves.
 
 If a source cannot be fetched or its format changed, the build fails and the last published files stay online.
+
+## Paths
+
+Subscriptions point at these paths, so they are frozen (see [HANDOVER.md](HANDOVER.md)):
+
+- `/{country}/{sport}.ics`: one feed per team, for example `/greece/football.ics` and `/greece/basketball.ics`.
+- `/`: the page listing every team. Team pages at `/{country}/{sport}/` are planned.
+
+Each event's `UID` is the source's id (`uefa-…`, `fiba-…`) and never changes, so an updated game
+replaces the old entry instead of duplicating it.
 
 ## One-time setup on GitHub
 
@@ -36,8 +49,9 @@ npm run build
 - **One game's details** (time, venue, tickets, a note) go in [src/manual.ts](src/manual.ts), keyed by the game id.
   The id is the first part of the event's `UID` in the calendar file, for example `fiba-127107`.
   Time and venue entered by hand are used only until the official source has its own.
-- **A new team** is one more entry in [src/config.ts](src/config.ts): a UEFA team id for football, or a FIBA
-  event and team code for basketball. Each new basketball competition needs its own FIBA event.
+- **A new team** is one more entry in [src/config.ts](src/config.ts): country and sport slugs, the stripe
+  colours from [docs/brand.md](docs/brand.md), and a UEFA team id for football or a FIBA event and team
+  code for basketball. Each new basketball competition needs its own FIBA event.
 
 ## Known limits
 
@@ -51,8 +65,8 @@ npm run build
   is on for the subscription; Google Calendar is believed to ignore embedded reminders, but lets you set a
   notification for the whole calendar in its settings. Outlook is unverified.
 - GitHub disables scheduled workflows after 60 days without repository activity and sends a warning email
-  first. Push any commit or click "Enable workflow" under Actions to resume. The "Last checked" date on the
+  first. Push any commit or click "Enable workflow" under Actions to resume. The "last run" date on the
   page shows whether the job is still running.
-- Games with no announced time appear as all-day events marked "time not announced".
+- Games with no announced time appear as all-day entries marked "time not announced".
 
 Background on the data sources: [docs/research-2026-10-02.md](docs/research-2026-10-02.md).

@@ -1,4 +1,4 @@
-import type { Team } from './config.ts'
+import { feedPath, type Team } from './config.ts'
 import type { Game } from './game.ts'
 
 export interface Section {
@@ -52,8 +52,7 @@ ${sections.map((s) => renderSection(s, siteUrl)).join('\n')}
 <footer>
 <p>Updated daily from UEFA and FIBA; last run ${DAY.format(now)}, ${TIME.format(now)} UTC. New games and kickoff times
 appear here, and in subscribed calendars, a day or two after they are announced. TV channels are the expected
-broadcasters; check again close to the game. In Google Calendar the reminder may not show: set a notification for
-the calendar in its settings.</p>
+broadcasters; check again close to the game. On Google Calendar, set a notification for this calendar once — it applies to every game.</p>
 </footer>
 <script>
   for (const el of document.querySelectorAll('time[data-offset]')) {
@@ -71,14 +70,14 @@ the calendar in its settings.</p>
 }
 
 function renderSection({ team, games }: Section, siteUrl?: string): string {
-  const file = `${team.slug}.ics`
+  const file = feedPath(team)
   const webcal = `${siteUrl?.replace(/^https?:/, 'webcal:')}/${file}`
   const subscribe = siteUrl
     ? `<a href="${esc(webcal)}">iPhone, Mac or Outlook</a> · ` +
       `<a href="https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcal)}">Google Calendar (on a computer)</a>, ` +
       `or paste <code>${esc(siteUrl)}/${file}</code> into another calendar app`
     : `<a href="${file}">calendar file</a>`
-  return `<section id="${team.slug}">
+  return `<section id="${team.country}-${team.sport}">
 <h2>${esc(team.name)}</h2>
 <p class="subscribe">Subscribe: ${subscribe}</p>
 ${games.length ? `<ul>\n${games.map(renderGame).join('\n')}\n</ul>` : '<p>No games announced yet.</p>'}

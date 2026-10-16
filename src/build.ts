@@ -1,5 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises'
-import { siteName, teams, type Team } from './config.ts'
+import { feedPath, siteName, teams, type Team } from './config.ts'
 import { fetchFibaGames } from './fiba.ts'
 import { byStart, withDetails, type Game } from './game.ts'
 import { toIcs } from './ics.ts'
@@ -21,14 +21,14 @@ function fetchGames(team: Team): Promise<Game[]> {
     : fetchFibaGames(source.event, source.teamCode)
 }
 
-await mkdir('dist', { recursive: true })
 const sections: Section[] = []
 for (const team of teams) {
   const games = (await fetchGames(team))
     .filter((game) => game.date >= today)
     .map((game) => withDetails(game, team.defaults, manual[game.id]))
     .sort(byStart)
-  await writeFile(`dist/${team.slug}.ics`, toIcs(team.name, games, now))
+  await mkdir(`dist/${team.country}`, { recursive: true })
+  await writeFile(`dist/${feedPath(team)}`, toIcs(team, games, now))
   sections.push({ team, games })
   console.log(`${team.name}: ${games.length} upcoming games`)
 }
