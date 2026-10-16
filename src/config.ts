@@ -20,7 +20,7 @@ export const teams: Team[] = [
     defaults: {
       // Confirmed for the Nations League 2026-27. Euro 2028 qualifiers are likely but
       // unconfirmed: re-check in early 2027.
-      tv: 'Alpha, Novasports (Greece, expected)',
+      tv: 'Alpha, Novasports (Greek TV)',
       tickets: 'https://www.pame-ethniki.gr/gnfc/showProductList.html',
     },
   },
@@ -30,7 +30,7 @@ export const teams: Team[] = [
     // One FIBA event per competition: a new competition needs a new event here.
     source: { kind: 'fiba', event: 'fiba-basketball-world-cup-2027-european-qualifiers', teamCode: 'GRE' },
     defaults: {
-      tv: 'ERT (Greece, exact channel announced close to the game)',
+      tv: 'ERT (Greek TV)',
     },
   },
 ]

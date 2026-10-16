@@ -29,7 +29,7 @@ export function toIcs(calendarName: string, games: Game[], now: Date): string {
       event.createAlarm({ type: ICalAlarmType.display, trigger: REMINDER_HOURS * 60 * 60 })
     } else {
       // All-day placeholder until the time is announced; the same UID later becomes a timed event.
-      calendar.createEvent({ ...details, summary: `${title} (time TBC)`, start: new Date(game.date), allDay: true })
+      calendar.createEvent({ ...details, summary: `${title} (time not announced)`, start: new Date(game.date), allDay: true })
     }
   }
   return calendar.toString()

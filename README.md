@@ -53,6 +53,6 @@ npm run build
 - GitHub disables scheduled workflows after 60 days without repository activity and sends a warning email
   first. Push any commit or click "Enable workflow" under Actions to resume. The "Last checked" date on the
   page shows whether the job is still running.
-- Games with no announced time appear as all-day events marked "time TBC".
+- Games with no announced time appear as all-day events marked "time not announced".
 
 Background on the data sources: [docs/research-2026-10-02.md](docs/research-2026-10-02.md).
