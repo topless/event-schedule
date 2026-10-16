@@ -36,6 +36,7 @@ jobs:
       - run: npm run build
         env:
           SITE_URL: ${{ steps.pages.outputs.base_url }}
+          CANONICAL_HOST: ${{ vars.CANONICAL_HOST }}
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist

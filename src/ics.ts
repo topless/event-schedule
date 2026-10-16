@@ -1,10 +1,10 @@
 import ical, { ICalAlarmType } from 'ical-generator'
 import { siteName, type Team } from './config.ts'
 import type { Game } from './game.ts'
+import { DEFAULT_SITE_URL } from './site.ts'
 
 const GAME_HOURS = 2
 const REMINDER_HOURS = 1
-const DEFAULT_SITE_URL = 'https://topless.github.io/scarf'
 const FEDERATION = { uefa: 'UEFA', fiba: 'FIBA' } as const
 
 // Event copy follows docs/calendar-event-spec.md, with "vs" between the teams.

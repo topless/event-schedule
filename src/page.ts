@@ -1,5 +1,6 @@
 import { feedPath, siteName, type Team } from './config.ts'
 import type { Game } from './game.ts'
+import { DEFAULT_SITE_URL } from './site.ts'
 
 // Team pages and the landing page, ported from reference/team-page.html. Styles live in
 // assets/site.css on top of assets/brand-tokens.css; both are copied into dist/ by the build.
@@ -20,12 +21,14 @@ const GOOGLE_NOTE = 'On Google Calendar, set a notification for this calendar on
 
 // siteUrl is the public address of the site; without it (local builds) the subscribe links are
 // relative and the ones that need a public address (Google, Outlook, the paste field) are left out.
+// The canonical link is always absolute, on the default host when no address is given.
 export function renderTeamPage(section: Section, all: Team[], now: Date, siteUrl?: string): string {
   const { team, games } = section
   const from = federation(team)
   const next = games[0]
   return page({
     root: '../../',
+    canonical: `${siteUrl ?? DEFAULT_SITE_URL}/${team.country}/${team.sport}/`,
     title: `${team.name} · ${siteName}`,
     description: `Every game of the ${team.side} in your calendar: kickoff, venue, TV and tickets, updated daily.`,
     stripes: team.colours,
@@ -80,10 +83,11 @@ ${footer('../../', [from], now)}`,
   })
 }
 
-export function renderLanding(sections: Section[], now: Date): string {
+export function renderLanding(sections: Section[], now: Date, siteUrl?: string): string {
   const sources = [...new Set(sections.map(({ team }) => federation(team)))]
   return page({
     root: '',
+    canonical: `${siteUrl ?? DEFAULT_SITE_URL}/`,
     title: `${siteName} · Your colours, in your calendar`,
     description: 'Every game of the national teams we follow in your calendar: kickoff, venue, TV and tickets, updated daily.',
     body: `${header('', '')}
@@ -102,7 +106,7 @@ ${footer('', sources, now)}`,
   })
 }
 
-function page(p: { root: string; title: string; description: string; body: string; stripes?: string[]; script?: string }): string {
+function page(p: { root: string; canonical: string; title: string; description: string; body: string; stripes?: string[]; script?: string }): string {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -110,6 +114,7 @@ function page(p: { root: string; title: string; description: string; body: strin
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(p.title)}</title>
 <meta name="description" content="${esc(p.description)}">
+<link rel="canonical" href="${esc(p.canonical)}">
 <link rel="icon" href="${p.root}favicon.svg" type="image/svg+xml">
 <link rel="icon" href="${p.root}icon-512.png" type="image/png" sizes="512x512">
 <link rel="apple-touch-icon" href="${p.root}apple-touch-icon.png">
