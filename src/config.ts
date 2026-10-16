@@ -12,6 +12,7 @@ export interface Team {
   side: string // how the feed description calls the team, in full
   // Stripe colours from the flag or kit; the first one is the calendar colour (docs/brand.md).
   colours: [string, string] | [string, string, string]
+  flag?: string // file in assets/, shown next to the team on its page
   source: { kind: 'uefa'; teamId: number } | { kind: 'fiba'; event: string; teamCode: string }
   // TV and tickets are in no data source. The broadcaster is stable per rights cycle, so it is
   // kept here per team; see docs/research-2026-10-02.md.
@@ -27,6 +28,7 @@ export const teams: Team[] = [
     name: 'Greece football',
     side: "Greece men's national football team",
     colours: ['#0D5EAF', '#FFFFFF'],
+    flag: 'flag-gr.svg',
     source: { kind: 'uefa', teamId: 49 },
     defaults: {
       // Confirmed for the Nations League 2026-27. Euro 2028 qualifiers are likely but
@@ -41,6 +43,7 @@ export const teams: Team[] = [
     name: 'Greece basketball',
     side: "Greece men's national basketball team",
     colours: ['#0D5EAF', '#FFFFFF'],
+    flag: 'flag-gr.svg',
     // One FIBA event per competition: a new competition needs a new event here.
     source: { kind: 'fiba', event: 'fiba-basketball-world-cup-2027-european-qualifiers', teamCode: 'GRE' },
     defaults: {

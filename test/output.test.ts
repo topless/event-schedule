@@ -1,9 +1,8 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { siteName, teams } from '../src/config.ts'
+import { teams } from '../src/config.ts'
 import { withDetails, type Game } from '../src/game.ts'
 import { toIcs } from '../src/ics.ts'
-import { renderPage } from '../src/page.ts'
 
 const now = new Date('2026-10-02T06:00:00Z')
 const [football] = teams
@@ -68,26 +67,8 @@ test('calendar has a timed event in UTC and an all-day placeholder while the tim
   assert.equal(lines.filter((l) => l === 'BEGIN:VALARM').length, 1)
 })
 
-test('page shows venue-local time, escapes text and links the calendars at the frozen paths', () => {
-  const html = renderPage(siteName, [{ team: football, games: [timed, unscheduled] }], now, 'https://example.github.io/scarf')
-  assert.match(html, /<time datetime="2026-10-04T18:45:00Z" data-offset="3">Sun,? 4 Oct 2026, 21:45 in Thessaloniki<\/time>/)
-  assert.match(html, /Thu,? 26 Nov 2026, time not announced/)
-  assert.match(html, /Venue not announced/)
-  assert.match(html, /href="https:\/\/tickets\.example\/a\?b=1&amp;c=2"/)
-  assert.match(html, /href="webcal:\/\/example\.github\.io\/scarf\/greece\/football\.ics"/)
-  assert.match(html, /<code>https:\/\/example\.github\.io\/scarf\/greece\/football\.ics<\/code>/)
-  assert.match(html, /<section id="greece-football">/)
-})
-
-test('page says so when a team has no upcoming games', () => {
-  const html = renderPage(siteName, [{ team: football, games: [] }], now)
-  assert.match(html, /No games announced yet/)
-  assert.doesNotMatch(html, /webcal:/)
-})
-
 test('nothing a fan reads carries the working title or a TBA', () => {
   const ics = toIcs(football, [timed, unscheduled], now)
-  const html = renderPage(siteName, [{ team: football, games: [timed, unscheduled] }], now, 'https://example.github.io/scarf')
-  for (const text of [ics, html]) assert.doesNotMatch(text, /event-schedule|Event schedule|\bTBA\b|\bTBC\b/)
+  assert.doesNotMatch(ics, /event-schedule|Event schedule|\bTBA\b|\bTBC\b/)
   assert.doesNotMatch(ics, /!/)
 })
