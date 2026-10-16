@@ -89,7 +89,7 @@ function renderGame(game: Game): string {
   const place = [game.venue, game.city].filter(Boolean).join(', ') || 'Venue not announced'
   return `<li>
 <p class="when">${renderWhen(game)}</p>
-<p class="match">${esc(game.home)} v ${esc(game.away)}</p>
+<p class="match">${esc(game.home)} vs ${esc(game.away)}</p>
 <p>${esc(game.competition)} · ${esc(place)}</p>
 ${game.tv ? `<p>TV: ${esc(game.tv)}</p>` : ''}
 ${game.tickets ? `<p><a href="${esc(game.tickets)}">Tickets</a></p>` : ''}

@@ -7,7 +7,7 @@ const REMINDER_HOURS = 1
 export function toIcs(calendarName: string, games: Game[], now: Date): string {
   const calendar = ical({ name: calendarName, ttl: 12 * 60 * 60 })
   for (const game of games) {
-    const title = `${game.home} v ${game.away}`
+    const title = `${game.home} vs ${game.away}`
     const details = {
       id: `${game.id}@event-schedule`,
       stamp: now,
