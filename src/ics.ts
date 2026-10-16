@@ -1,15 +1,24 @@
 import ical, { ICalAlarmType } from 'ical-generator'
+import { siteName, type Team } from './config.ts'
 import type { Game } from './game.ts'
 
 const GAME_HOURS = 2
 const REMINDER_HOURS = 1
 
-export function toIcs(calendarName: string, games: Game[], now: Date): string {
-  const calendar = ical({ name: calendarName, ttl: 12 * 60 * 60 })
+export function toIcs(team: Team, games: Game[], now: Date): string {
+  // Header fields follow docs/calendar-event-spec.md: team first, brand last, the team's colour.
+  const calendar = ical({
+    prodId: { company: siteName, product: 'feeds', language: 'EN' },
+    name: `${team.name} · ${siteName}`,
+    description: `Every game of the ${team.side} — kickoff, venue, TV, tickets. Kept up to date by ${siteName}.`,
+    color: team.colours[0],
+    ttl: 12 * 60 * 60,
+  })
   for (const game of games) {
     const title = `${game.home} vs ${game.away}`
     const details = {
-      id: `${game.id}@event-schedule`,
+      // The source id keeps the UID stable, so a changed game replaces the old entry in place.
+      id: `${game.id}@${siteName}`,
       stamp: now,
       location: [game.venue, game.city].filter(Boolean).join(', ') || undefined,
       description: [

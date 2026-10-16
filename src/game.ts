@@ -46,7 +46,7 @@ export function byStart(a: Game, b: Game): number {
 
 export async function fetchText(url: string): Promise<string> {
   const res = await fetch(url, {
-    headers: { 'User-Agent': 'event-schedule/0.1 (personal fixture calendar)' },
+    headers: { 'User-Agent': 'scarf/0.1 (personal fixture calendar)' },
   })
   if (!res.ok) throw new Error(`${res.status} ${res.statusText} for ${url}`)
   return res.text()
