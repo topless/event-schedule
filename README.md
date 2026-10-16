@@ -14,7 +14,9 @@ The "Build feeds" GitHub Actions job runs `npm run build` once a day. The build:
 
 1. fetches each team's games from the official source (UEFA for football, FIBA for basketball);
 2. adds what no source provides (TV channel, ticket link) from [src/config.ts](src/config.ts) and [src/manual.ts](src/manual.ts);
-3. writes one `dist/{country}/{sport}.ics` per team and `dist/index.html`, which GitHub Pages serves.
+3. writes one `dist/{country}/{sport}.ics` per team, its `-alerts` variant, and `dist/index.html`, which GitHub Pages serves;
+4. records the games it saw in [src/known-games.json](src/known-games.json), which the Actions job commits back to
+   `main` when it changed, so the next run can tell a newly announced game from an old one.
 
 If a source cannot be fetched or its format changed, the build fails and the last published files stay online.
 
@@ -23,6 +25,8 @@ If a source cannot be fetched or its format changed, the build fails and the las
 Subscriptions point at these paths, so they are frozen (see [HANDOVER.md](HANDOVER.md)):
 
 - `/{country}/{sport}.ics`: one feed per team, for example `/greece/football.ics` and `/greece/basketball.ics`.
+- `/{country}/{sport}-alerts.ics`: the same feed plus an all-day "New game" entry on the day a game is announced,
+  for fans who tick "Also tell me when a new game is announced" on the team page.
 - `/`: the page listing every team. Team pages at `/{country}/{sport}/` are planned.
 
 Each event's `UID` is the source's id (`uefa-…`, `fiba-…`) and never changes, so an updated game
@@ -42,6 +46,10 @@ npm install
 npm test
 npm run build
 ```
+
+A local `npm run build` also updates [src/known-games.json](src/known-games.json) when it sees a game for the first
+time (the very first build seeds it with every current game). Commit that change or discard it with
+`git checkout -- src/known-games.json`; the daily run keeps the file current either way.
 
 ## Maintaining it by hand
 

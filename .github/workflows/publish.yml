@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write # the run commits src/known-games.json back to main (last step)
   pages: write
   id-token: write
 
@@ -41,3 +41,16 @@ jobs:
           path: dist
       - id: deploy
         uses: actions/deploy-pages@v5
+      # The build records the games it saw in src/known-games.json, so the next run can tell a newly
+      # announced game from an old one (the -alerts feeds). Commit it back when it changed. A push made
+      # with GITHUB_TOKEN starts no workflow run, so this cannot loop, and the concurrency group above
+      # keeps two runs from racing. Runs after the deploy, so a failed push never holds the feeds back.
+      - name: Record newly seen games
+        run: |
+          git diff --quiet -- src/known-games.json && exit 0
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/known-games.json
+          git commit -m 'chore(data): record newly seen games' -m '- Remembers the games this run saw, so the next run can tell a new announcement from an old game'
+          git pull --rebase origin main # main may have moved since the checkout
+          git push origin HEAD:main
