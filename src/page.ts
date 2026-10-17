@@ -187,7 +187,7 @@ function header(root: string, nav: string): string {
 
 function footer(root: string, sources: string, now: Date): string {
   return `<footer class="wrap site-footer">
-  <div class="footer-brand">${mark(28)}<span class="wordmark">${siteName}</span><span>· Fans, not fanatics.</span></div>
+  <div class="footer-brand">${mark(28)}<span class="wordmark">${siteName}</span><span>· Here for the team, the players and the game.</span></div>
   <p>Updated daily from ${sources} · last run ${longDate(now)}, ${TIME.format(now)} UTC</p>
 </footer>`
 }
