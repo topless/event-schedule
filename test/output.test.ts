@@ -139,14 +139,64 @@ test('unknown lines drop out, and the footer and team page follow the site URL',
   assert.ok(lines.includes('URL;VALUE=URI:https://example.github.io/scarf/greece/football/'))
 })
 
+// Spec § 4: the -alerts variant carries the default feed plus one all-day entry per newly seen game.
+const announced = { 'fiba-127100': '2026-10-20' }
+
+test('the alerts variant announces a newly seen game; the default feed never does', () => {
+  const alerts = toIcs(basketball, [ukraine], now, undefined, announced)
+  const lines = icsLines(alerts)
+  assert.ok(lines.includes('X-WR-CALNAME:Greece basketball + alerts · scarf'))
+  assert.ok(lines.includes('X-APPLE-CALENDAR-COLOR:#0D5EAF'))
+  assert.ok(lines.includes('UID:fiba-127100@scarf'))
+  assert.equal(lines.filter((l) => l === 'BEGIN:VEVENT').length, 2)
+  assert.deepEqual(vevent(alerts, 'fiba-127100-new@scarf'), [
+    'BEGIN:VEVENT',
+    'UID:fiba-127100-new@scarf',
+    'SEQUENCE:0',
+    'DTSTART;VALUE=DATE:20261020',
+    'X-MICROSOFT-CDO-ALLDAYEVENT:TRUE',
+    'X-MICROSOFT-MSNCALENDAR-ALLDAYEVENT:TRUE',
+    'SUMMARY:New game · Greece vs Ukraine\\, 26 Feb 2027',
+    "DESCRIPTION:Just announced by FIBA. It's already in this calendar — time and arena to follow.\\n\\nKept up to date by scarf · topless.github.io/scarf/greece/basketball",
+    'URL;VALUE=URI:https://topless.github.io/scarf/greece/basketball/',
+    'END:VEVENT',
+  ])
+
+  const plain = toIcs(basketball, [ukraine], now)
+  assert.ok(icsLines(plain).includes('X-WR-CALNAME:Greece basketball · scarf'))
+  assert.doesNotMatch(plain, /-new@scarf|New game|alerts/)
+
+  // A game the first build seeded is not announced, even in the variant.
+  const quiet = icsLines(toIcs(basketball, [ukraine], now, undefined, {}))
+  assert.ok(quiet.includes('X-WR-CALNAME:Greece basketball + alerts · scarf'))
+  assert.equal(quiet.filter((l) => l === 'BEGIN:VEVENT').length, 1)
+})
+
+test('a new game already timed gets the short line; football has a stadium, not an arena', () => {
+  const alert = (game: Game) => vevent(toIcs(football, [game], now, undefined, { 'uefa-2047926': '2026-10-20' }), 'uefa-2047926-new@scarf')
+  const footer = 'Kept up to date by scarf · topless.github.io/scarf/greece/football'
+  const timedAlert = alert(serbia)
+  assert.ok(timedAlert.includes('SUMMARY:New game · Greece vs Serbia\\, 16 Nov 2026'))
+  assert.ok(timedAlert.includes(`DESCRIPTION:Just announced by UEFA. It's already in this calendar.\\n\\n${footer}`))
+  assert.ok(alert({ ...serbia, kickoff: undefined, venue: undefined }).includes(`DESCRIPTION:Just announced by UEFA. It's already in this calendar — time and stadium to follow.\\n\\n${footer}`))
+  assert.ok(alert({ ...serbia, kickoff: undefined }).includes(`DESCRIPTION:Just announced by UEFA. It's already in this calendar — time to follow.\\n\\n${footer}`))
+  // The game page is the link; the game's own entry carries the ticket link.
+  assert.ok(timedAlert.includes('URL;VALUE=URI:https://topless.github.io/scarf/greece/football/'))
+  assert.ok(!timedAlert.includes('BEGIN:VALARM'))
+})
+
 test('feed copy passes the voice checks', () => {
-  const ics = toIcs(football, [timed, unscheduled, serbia, ukraine], now).replaceAll(/\r\n[ \t]/g, '')
-  assert.doesNotMatch(ics, /!/)
-  assert.doesNotMatch(ics, /\p{Extended_Pictographic}/u)
-  assert.doesNotMatch(ics, /notification|don't miss|\bTBA\b|\bTBC\b/i)
-  const kickoffs = [...ics.matchAll(/Kickoff \d{2}:\d{2}(.{0,5})/g)]
-  assert.equal(kickoffs.length, 2)
-  for (const [, after] of kickoffs) assert.match(after, /^ in \S/)
+  const games = [timed, unscheduled, serbia, ukraine]
+  const feeds = [toIcs(football, games, now), toIcs(football, games, now, undefined, { 'uefa-1': '2026-10-01', 'fiba-2': '2026-10-01' })]
+  for (const feed of feeds) {
+    const ics = feed.replaceAll(/\r\n[ \t]/g, '')
+    assert.doesNotMatch(ics, /!/)
+    assert.doesNotMatch(ics, /\p{Extended_Pictographic}/u)
+    assert.doesNotMatch(ics, /notification|don't miss|\bTBA\b|\bTBC\b/i)
+    const kickoffs = [...ics.matchAll(/Kickoff \d{2}:\d{2}(.{0,5})/g)]
+    assert.equal(kickoffs.length, 2)
+    for (const [, after] of kickoffs) assert.match(after, /^ in \S/)
+  }
 })
 
 test('nothing a fan reads carries the working title or a TBA', () => {

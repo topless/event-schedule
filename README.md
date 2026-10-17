@@ -16,11 +16,13 @@ The "Build feeds" GitHub Actions job runs `npm run build` once a day. The build:
 1. fetches the games from the official sources: one UEFA request for every football team, and one FIBA
    page per basketball competition, shared by the teams playing in it;
 2. adds what no source provides (TV channel, ticket link) from [src/config.ts](src/config.ts) and [src/manual.ts](src/manual.ts);
-3. writes one `dist/{country}/{sport}.ics` per team and `dist/index.html`, which GitHub Pages serves;
+3. writes one `dist/{country}/{sport}.ics` per team, its `-alerts` variant, and `dist/index.html`, which GitHub Pages serves;
 4. renders a 1200×630 share image per team at `dist/{country}/{sport}/share.png` and one for the landing
    page at `dist/share.png`, the card a chat app shows when someone pastes a page's address, from
    [src/share.ts](src/share.ts): a team's in its colours with its next game, the landing page's in the
-   brand colours with every team's name.
+   brand colours with every team's name;
+5. records the games it saw in [src/known-games.json](src/known-games.json), which the Actions job commits back to
+   `main` when it changed, so the next run can tell a newly announced game from an old one.
 
 If a source cannot be fetched or its format changed, the build fails and the last published files stay online.
 
@@ -29,6 +31,8 @@ If a source cannot be fetched or its format changed, the build fails and the las
 Subscriptions point at these paths, so they are frozen (see [HANDOVER.md](HANDOVER.md)):
 
 - `/{country}/{sport}.ics`: one feed per team, for example `/greece/football.ics` and `/greece/basketball.ics`.
+- `/{country}/{sport}-alerts.ics`: the same feed plus an all-day "New game" entry on the day a game is announced,
+  for fans who tick "Also tell me when a new game is announced" on the team page.
 - `/`: the page listing every team. Team pages at `/{country}/{sport}/` are planned.
 
 Each event's `UID` is the source's id (`uefa-…`, `fiba-…`) and never changes, so an updated game
@@ -50,6 +54,10 @@ npm install
 npm test
 npm run build
 ```
+
+A local `npm run build` also updates [src/known-games.json](src/known-games.json) when it sees a game for the first
+time (the very first build seeds it with every current game). Commit that change or discard it with
+`git checkout -- src/known-games.json`; the daily run keeps the file current either way.
 
 ## Maintaining it by hand
 
