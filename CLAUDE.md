@@ -9,8 +9,9 @@ in your calendar." Principle: fans, not fanatics.
 
 - Node 22.18+, TypeScript. `npm install` · `npm test` · `npm run build` (writes `dist/`).
 - Sources: UEFA match API (football), FIBA games page (basketball). Both undocumented; **one request
-  per source per run**, never more. If a fetch fails or the shape changes, fail the build — the last
-  published `dist/` stays online.
+  per source per run**, never more: UEFA takes every team id in one call, and a FIBA page is fetched
+  once per competition and parsed for every team in it. If a fetch fails or the shape changes, fail
+  the build — the last published `dist/` stays online.
 - Manual data: `src/config.ts` (teams, ids, TV, ticket URLs), `src/manual.ts` (per-game overrides
   keyed by source id, e.g. `fiba-127107`). Hand-entered time/venue yield to the official source.
 
