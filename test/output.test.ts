@@ -214,3 +214,12 @@ test('removing the on-sale day, or having no ticket link, removes the extra even
   assert.deepEqual(uids([serbia]), ['UID:uefa-2047926@scarf'])
   assert.deepEqual(uids([{ ...onSale, tickets: undefined }]), ['UID:uefa-2047926@scarf'])
 })
+
+test('every team gets a feed in its own name, colour and side', () => {
+  for (const team of teams) {
+    const lines = icsLines(toIcs(team, [], now))
+    assert.ok(lines.includes(`X-WR-CALNAME:${team.name} · scarf`), team.name)
+    assert.ok(lines.includes(`X-APPLE-CALENDAR-COLOR:${team.colours[0]}`), team.name)
+    assert.ok(lines.some((l) => l.startsWith(`X-WR-CALDESC:Every game of the ${team.side} — `)), team.name)
+  }
+})
