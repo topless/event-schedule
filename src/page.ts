@@ -1,4 +1,4 @@
-import { alertsFeedPath, feedName, feedPath, sharePath, shareSize, siteName, type Team } from './config.ts'
+import { alertsFeedPath, feedName, feedPath, landingSharePath, sharePath, shareSize, siteName, type Team } from './config.ts'
 import type { Game } from './game.ts'
 
 // Team pages and the landing page, ported from reference/team-page.html. Styles live in
@@ -79,17 +79,19 @@ ${all.map((other) => teamChip(other, other === team)).join('\n')}
   </div>
 </section>
 </main>
-${footer('../../', [from], now)}`,
+${footer('../../', from, now)}`,
     script: COPY_SCRIPT + ALERTS_SCRIPT,
   })
 }
 
-export function renderLanding(sections: Section[], now: Date): string {
-  const sources = [...new Set(sections.map(({ team }) => federation(team)))]
+export function renderLanding(sections: Section[], now: Date, siteUrl?: string): string {
+  const teams = sections.map(({ team }) => team)
   return page({
     root: '',
     title: `${siteName} · Your colours, in your calendar`,
     description: 'Every game of the national teams we follow in your calendar: kickoff, venue, TV and tickets, updated daily.',
+    // The landing page's share image sits at the site root, next to it.
+    share: { url: siteUrl && `${siteUrl}/`, image: siteUrl && `${siteUrl}/${landingSharePath}` },
     body: `${header('', '')}
 <main>
 <section class="wrap hero">
@@ -102,7 +104,7 @@ export function renderLanding(sections: Section[], now: Date): string {
 ${sections.map(teamCard).join('\n')}
 </section>
 </main>
-${footer('', sources, now)}`,
+${footer('', federations(teams), now)}`,
   })
 }
 
@@ -148,8 +150,8 @@ ${p.body}
 `
 }
 
-// What a chat app shows when a fan pastes the page's address: the title, the description and,
-// on a team page, the 1200×630 share card the build renders next to it.
+// What a chat app shows when a fan pastes the page's address: the title, the description and the
+// 1200×630 share card the build renders next to the page.
 function socialMeta(p: { title: string; description: string; share?: { url?: string; image?: string } }): string {
   const tags = [
     ['og:title', p.title],
@@ -203,10 +205,10 @@ function header(root: string, nav: string): string {
 </header>`
 }
 
-function footer(root: string, sources: string[], now: Date): string {
+function footer(root: string, sources: string, now: Date): string {
   return `<footer class="wrap site-footer">
   <div class="footer-brand">${mark(28)}<span class="wordmark">${siteName}</span><span>· Fans, not fanatics.</span></div>
-  <p>Updated daily from ${sources.join(' and ')} · last run ${longDate(now)}, ${TIME.format(now)} UTC</p>
+  <p>Updated daily from ${sources} · last run ${longDate(now)}, ${TIME.format(now)} UTC</p>
 </footer>`
 }
 
@@ -320,9 +322,15 @@ function teamCard({ team, games }: Section): string {
 const matchTitle = (game: Game) => `${esc(game.home)} vs ${esc(game.away)}`
 const place = (game: Game) => [game.venue, game.city].filter(Boolean).join(', ') || 'Venue not announced'
 export const federation = (team: Team) => team.source.kind.toUpperCase()
+// "UEFA and FIBA", "football, basketball and handball".
+const and = (items: string[]) => (items.length < 2 ? items.join('') : `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`)
+// "UEFA and FIBA": every source behind a list of teams, once each, in the teams' order.
+export const federations = (teams: Team[]) => and([...new Set(teams.map(federation))])
 const capitalise = (text: string) => text.charAt(0).toUpperCase() + text.slice(1)
 // "National team · Men's football": the eyebrow over a team's name on its page, card and share image.
 export const teamKind = (team: Team) => `National team · ${capitalise(`men's ${team.sport}`)}`
+// "National teams · Football and basketball": the same over the landing page's share image.
+export const landingKind = (teams: Team[]) => `National teams · ${capitalise(and([...new Set(teams.map((team) => team.sport))]))}`
 
 // The kickoff as a clock at the venue reads it.
 const shift = (game: Game) => new Date(new Date(game.kickoff!).getTime() + game.utcOffsetHours! * 60 * 60 * 1000)
