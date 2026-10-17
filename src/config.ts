@@ -21,6 +21,7 @@ export interface Team {
 
 export const feedPath = (team: Team): string => `${team.country}/${team.sport}.ics`
 export const sharePath = (team: Team): string => `${team.country}/${team.sport}/share.png`
+export const landingSharePath = 'share.png' // the landing page's, at the site root
 export const shareSize = { width: 1200, height: 630 } // the share image, the size chat apps expect
 
 export const teams: Team[] = [
