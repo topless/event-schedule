@@ -35,7 +35,7 @@ for (const team of teams) {
 }
 for (const section of sections) {
   const { country, sport } = section.team
-  await writeFile(`dist/${country}/${sport}/index.html`, renderTeamPage(section, teams, now, siteUrl))
+  await writeFile(`dist/${country}/${sport}/index.html`, renderTeamPage(section, teams, siteUrl))
 }
-await writeFile('dist/index.html', renderLanding(sections, now))
+await writeFile('dist/index.html', renderLanding(sections))
 await cp('assets', 'dist', { recursive: true })

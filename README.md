@@ -65,8 +65,8 @@ npm run build
   is on for the subscription; Google Calendar is believed to ignore embedded reminders, but lets you set a
   notification for the whole calendar in its settings. Outlook is unverified.
 - GitHub disables scheduled workflows after 60 days without repository activity and sends a warning email
-  first. Push any commit or click "Enable workflow" under Actions to resume. The "last run" date on the
-  page shows whether the job is still running.
+  first. Push any commit or click "Enable workflow" under Actions to resume; the Actions tab shows when
+  the job last ran.
 - Games with no announced time appear as all-day entries marked "time not announced".
 
 Background on the data sources: [docs/research-2026-10-02.md](docs/research-2026-10-02.md).

@@ -20,7 +20,7 @@ const GOOGLE_NOTE = 'On Google Calendar, set a notification for this calendar on
 
 // siteUrl is the public address of the site; without it (local builds) the subscribe links are
 // relative and the ones that need a public address (Google, Outlook, the paste field) are left out.
-export function renderTeamPage(section: Section, all: Team[], now: Date, siteUrl?: string): string {
+export function renderTeamPage(section: Section, all: Team[], siteUrl?: string): string {
   const { team, games } = section
   const from = federation(team)
   const next = games[0]
@@ -75,13 +75,12 @@ ${all.map((other) => teamChip(other, other === team)).join('\n')}
   </div>
 </section>
 </main>
-${footer('../../', [from], now)}`,
+${footer()}`,
     script: COPY_SCRIPT,
   })
 }
 
-export function renderLanding(sections: Section[], now: Date): string {
-  const sources = [...new Set(sections.map(({ team }) => federation(team)))]
+export function renderLanding(sections: Section[]): string {
   return page({
     root: '',
     title: `${siteName} · Your colours, in your calendar`,
@@ -98,7 +97,7 @@ export function renderLanding(sections: Section[], now: Date): string {
 ${sections.map(teamCard).join('\n')}
 </section>
 </main>
-${footer('', sources, now)}`,
+${footer()}`,
   })
 }
 
@@ -152,10 +151,9 @@ function header(root: string, nav: string): string {
 </header>`
 }
 
-function footer(root: string, sources: string[], now: Date): string {
+function footer(): string {
   return `<footer class="wrap site-footer">
   <div class="footer-brand">${mark(28)}<span class="wordmark">${siteName}</span><span>· Fans, not fanatics.</span></div>
-  <p>Updated daily from ${sources.join(' and ')} · last run ${longDate(now)}, ${TIME.format(now)} UTC</p>
 </footer>`
 }
 
