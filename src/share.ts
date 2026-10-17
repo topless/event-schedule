@@ -4,18 +4,19 @@ import satori from 'satori'
 import { html } from 'satori-html'
 import { shareSize, siteName, type Team } from './config.ts'
 import type { Game } from './game.ts'
-import { federation, kickoffText, shortDate, teamKind } from './page.ts'
+import { federation, federations, kickoffText, landingKind, shortDate, teamKind } from './page.ts'
 
-// The 1200×630 share image behind a team page's og:image, ported from reference/share-card.html.
-// The card is HTML with inline styles, laid out by Satori (a flexbox subset, no browser) into an
-// SVG that resvg rasterises. Fonts are the static instances in fonts/, so the render needs nothing
-// from the network and behaves the same on every machine.
+// The 1200×630 share images behind the pages' og:image, ported from reference/share-card.html:
+// one per team, and a neutral one for the landing page in the same layout. A card is HTML with
+// inline styles, laid out by Satori (a flexbox subset, no browser) into an SVG that resvg
+// rasterises. Fonts are the static instances in fonts/, so the render needs nothing from the
+// network and behaves the same on every machine.
 
 const { width: WIDTH, height: HEIGHT } = shareSize
 export const SHARE_MAX_BYTES = 300 * 1024
 
-// The team page's address without the scheme, as printed in the card's footer. The default host
-// is the GitHub Pages one until the custom domain exists (see HANDOVER.md).
+// The site's address without the scheme, as printed in a card's footer. The default host is the
+// GitHub Pages one until the custom domain exists (see HANDOVER.md).
 const DEFAULT_HOST = 'topless.github.io/scarf'
 
 const WOOL = '#FBF8F2'
@@ -30,41 +31,53 @@ export async function renderShareImage(team: Team, next: Game | undefined, siteU
   return renderSharePng(renderShareCard(team, next, siteUrl, flag))
 }
 
-// The card as HTML in the subset Satori lays out: every box is a flex box, styles are inline,
-// and the three SVGs (brand mark, flag, team mark) are embedded as images.
-export function renderShareCard(team: Team, next: Game | undefined, siteUrl?: string, flagSvg?: string): string {
-  const host = (siteUrl ?? DEFAULT_HOST).replace(/^https?:\/\//, '').replace(/\/$/, '')
-  const [band, ...stripes] = team.colours
-  return `<div style="display: flex; flex-direction: column; width: ${WIDTH}px; height: ${HEIGHT}px; background: ${WOOL}; color: ${INK}; font-family: 'Albert Sans', sans-serif">
-  <div style="height: 28px; background: ${stripeBand(team.colours)}; border-bottom: 2.5px solid ${INK}"></div>
-  <div style="flex: 1; display: flex; gap: 40px; padding: 48px 64px 40px">
-    <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 24px">
-      <div style="display: flex; align-items: center; gap: 12px">
-        ${image(brandMark(), 48, 48)}
-        <span style="font-family: ${DISPLAY}; font-weight: 800; font-size: 40px; line-height: 1; letter-spacing: -0.045em">${siteName}</span>
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 16px">
-        <div style="display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 600; color: ${STAND}">
-          ${flagSvg ? image(flagSvg, 30, 20) : ''}
-          <span>${esc(teamKind(team))}</span>
-        </div>
-        <div style="font-family: ${DISPLAY}; font-weight: 800; font-size: 84px; line-height: 0.92; letter-spacing: -0.045em; max-width: 720px">${esc(team.name)}, in your calendar.</div>
-      </div>
-      <div style="display: flex; align-items: center; gap: 14px; font-size: 22px; font-weight: 600">
-        <span style="display: flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 999px; background: ${RED}; color: #FFFFFF; font-size: 15px; font-weight: 700; letter-spacing: 0.04em">NEXT</span>
-        <span>${esc(nextGameLine(next))}</span>
-      </div>
-    </div>
-    <div style="width: 340px; display: flex; align-items: center; justify-content: center">
-      ${image(teamMark(band, stripes), 340, 340)}
-    </div>
-  </div>
-  <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 64px 28px; font-size: 17px; color: ${STAND}">
-    <span>${esc(`${host}/${team.country}/${team.sport}`)}</span>
-    <span>Free · updated daily from ${federation(team)}</span>
-  </div>
-</div>`
+// The card for the landing page as a PNG.
+export function renderLandingShareImage(teams: Team[], siteUrl?: string): Promise<Buffer> {
+  return renderSharePng(renderLandingShareCard(teams, siteUrl))
 }
+
+// A team's card: its stripe across the top, its flag and kind over the headline, the large mark
+// in its colours, and its next game under a NEXT pill.
+export function renderShareCard(team: Team, next: Game | undefined, siteUrl?: string, flagSvg?: string): string {
+  const [band, ...stripes] = team.colours
+  return card(
+    {
+      band: stripeBand(team.colours),
+      eyebrow: `${flagSvg ? image(flagSvg, 30, 20) : ''}<span>${esc(teamKind(team))}</span>`,
+      headline: `${team.name}, in your calendar.`,
+      label: 'NEXT',
+      labelColour: RED,
+      line: nextGameLine(next),
+      mark: teamMark(band, stripes),
+      path: `/${team.country}/${team.sport}`,
+      source: federation(team),
+    },
+    siteUrl,
+  )
+}
+
+// The landing page's card: the same layout in the brand's own colours, so the two read as one
+// family. An ink band where a team's stripe would be, the large mark in terrace red and wool, the
+// brand line as the headline, and every team by name where a team's card has its next game.
+export function renderLandingShareCard(teams: Team[], siteUrl?: string): string {
+  return card(
+    {
+      band: INK,
+      eyebrow: `<span>${esc(landingKind(teams))}</span>`,
+      headline: 'Your colours, in your calendar.',
+      label: 'TEAMS',
+      labelColour: INK,
+      line: teamsLine(teams),
+      mark: teamMark(RED, [WOOL]),
+      path: '',
+      source: federations(teams),
+    },
+    siteUrl,
+  )
+}
+
+// "Greece football · Greece basketball"
+export const teamsLine = (teams: Team[]): string => teams.map((team) => team.name).join(' · ')
 
 // "Netherlands vs Greece · Fri 13 Nov · 20:45 in Amsterdam", or "… · time not announced".
 export function nextGameLine(game?: Game): string {
@@ -84,6 +97,51 @@ export async function renderSharePng(card: string): Promise<Buffer> {
   return Buffer.from(png)
 }
 
+interface Card {
+  band: string // the CSS background of the band across the top
+  eyebrow: string // HTML: the line over the headline, with a flag when there is one
+  headline: string
+  label: string // the pill before the last line, and its colour
+  labelColour: string
+  line: string // the last line: a team's next game, or the landing page's teams
+  mark: string // the SVG filling the right-hand side
+  path: string // the page's path under the site, "" for the landing page
+  source: string // "UEFA" or "UEFA and FIBA": who the footer says the feed is updated from
+}
+
+// A card as HTML in the subset Satori lays out: every box is a flex box, styles are inline, and
+// the SVGs (brand mark, flag, large mark) are embedded as images. The last line wraps under its
+// pill when it is long, each line as tall as the pill.
+function card(c: Card, siteUrl?: string): string {
+  const host = (siteUrl ?? DEFAULT_HOST).replace(/^https?:\/\//, '').replace(/\/$/, '')
+  return `<div style="display: flex; flex-direction: column; width: ${WIDTH}px; height: ${HEIGHT}px; background: ${WOOL}; color: ${INK}; font-family: 'Albert Sans', sans-serif">
+  <div style="height: 28px; background: ${c.band}; border-bottom: 2.5px solid ${INK}"></div>
+  <div style="flex: 1; display: flex; gap: 40px; padding: 48px 64px 40px">
+    <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 24px">
+      <div style="display: flex; align-items: center; gap: 12px">
+        ${image(brandMark(), 48, 48)}
+        <span style="font-family: ${DISPLAY}; font-weight: 800; font-size: 40px; line-height: 1; letter-spacing: -0.045em">${siteName}</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; align-items: center; gap: 12px; font-size: 20px; font-weight: 600; color: ${STAND}">${c.eyebrow}</div>
+        <div style="font-family: ${DISPLAY}; font-weight: 800; font-size: 84px; line-height: 0.92; letter-spacing: -0.045em; max-width: 720px">${esc(c.headline)}</div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 14px; font-size: 22px; font-weight: 600">
+        <span style="display: flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 999px; background: ${c.labelColour}; color: #FFFFFF; font-size: 15px; font-weight: 700; letter-spacing: 0.04em">${c.label}</span>
+        <span style="flex: 1; line-height: 36px">${esc(c.line)}</span>
+      </div>
+    </div>
+    <div style="width: 340px; display: flex; align-items: center; justify-content: center">
+      ${image(c.mark, 340, 340)}
+    </div>
+  </div>
+  <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 64px 28px; font-size: 17px; color: ${STAND}">
+    <span>${esc(host + c.path)}</span>
+    <span>Free · updated daily from ${esc(c.source)}</span>
+  </div>
+</div>`
+}
+
 // Hard-stop stripes, 40 px per colour as in the reference card (the page uses 18 and 24).
 function stripeBand(colours: string[]): string {
   return `repeating-linear-gradient(90deg, ${colours.map((c, i) => `${c} ${i * 40}px ${(i + 1) * 40}px`).join(', ')})`
@@ -94,8 +152,8 @@ function brandMark(): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none"><g transform="rotate(-14 32 32)"><rect x="8" y="22" width="48" height="20" rx="7" fill="${RED}"/><rect x="17" y="22" width="7" height="20" fill="${WOOL}"/><rect x="29" y="22" width="7" height="20" fill="${WOOL}"/><rect x="41" y="22" width="7" height="20" fill="${WOOL}"/><rect x="8" y="22" width="48" height="20" rx="7" stroke="${INK}" stroke-width="3"/><path d="M8 27H2M8 32H2M8 37H2M56 27h6M56 32h6M56 37h6" stroke="${INK}" stroke-width="3" stroke-linecap="round"/></g></svg>`
 }
 
-// The large mark on the right of the card in the team's colours: the band in the first colour,
-// the knitted stripes cycling through the rest.
+// The large mark on the right of a card: the band in the first colour, the knitted stripes
+// cycling through the rest. A team's colours on its card, terrace red and wool on the landing one.
 function teamMark(band: string, stripes: string[]): string {
   const stripe = (x: number, width: number, i: number) =>
     `<rect x="${x}" y="22" width="${width}" height="20" fill="${stripes[i % stripes.length]}"/>`

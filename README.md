@@ -17,9 +17,10 @@ The "Build feeds" GitHub Actions job runs `npm run build` once a day. The build:
    page per basketball competition, shared by the teams playing in it;
 2. adds what no source provides (TV channel, ticket link) from [src/config.ts](src/config.ts) and [src/manual.ts](src/manual.ts);
 3. writes one `dist/{country}/{sport}.ics` per team and `dist/index.html`, which GitHub Pages serves;
-4. renders a 1200×630 share image per team at `dist/{country}/{sport}/share.png`, the card a chat app
-   shows when someone pastes the team page's address, from [src/share.ts](src/share.ts) with the team's
-   colours and its next game.
+4. renders a 1200×630 share image per team at `dist/{country}/{sport}/share.png` and one for the landing
+   page at `dist/share.png`, the card a chat app shows when someone pastes a page's address, from
+   [src/share.ts](src/share.ts): a team's in its colours with its next game, the landing page's in the
+   brand colours with every team's name.
 
 If a source cannot be fetched or its format changed, the build fails and the last published files stay online.
 
@@ -61,6 +62,50 @@ npm run build
   FIBA event and team code for basketball. A football team costs no extra request; a basketball team in a
   competition that is already fetched costs none either, and each new basketball competition costs one.
 
+## Keeping it running
+
+The daily build is a scheduled GitHub Actions workflow, and GitHub disables scheduled workflows in a
+repository that has seen no activity for 60 days. Three things in `.github/workflows/` keep scarf
+publishing without anyone pushing a commit:
+
+- **Keepalive.** Every scheduled or manual run of "Build feeds" has a `keepalive` job that re-enables
+  both scheduled workflows through the Actions API (`gh workflow enable`). Re-enabling counts as
+  repository activity and restarts the 60-day clock, so no stamp commit is needed; a commit pushed by
+  the workflow would in any case be rejected, because the `protect-main` ruleset only accepts pull
+  requests on `main`. GitHub does not document the reset, but the widely used keepalive actions rely on it.
+  If GitHub's "scheduled workflow will be disabled soon" email ever arrives, the keepalive is not
+  working: click "Enable workflow" under Actions, then switch to a stamp commit pushed with a token
+  that is allowed to bypass the ruleset.
+- **Failure alerts.** A failed run of "Build feeds" or "Check feeds" opens an issue labelled `ops`,
+  titled "Build feeds failed" or "Check feeds failed", linking to the run. While that issue is open,
+  further failures are added to it as comments instead of new issues. An issue opened in your own
+  repository reaches you by email like any other. GitHub can also tell you about the failed run itself:
+  on github.com open Settings → Notifications, and under "System" → "Actions" open the dropdown (it
+  reads "Don't notify" while off), choose "Email" and/or "On GitHub", and tick "Only notify for failed
+  workflows". Those run emails for a scheduled workflow go to the person who last changed its `cron` line.
+- **Freshness check.** "Check feeds" runs once a day, six hours after the build's slot. It fetches the
+  live feeds and reads their `DTSTAMP`, the build time written into every event. If the newest is older
+  than 36 hours the check fails and the alert above fires. This is what catches a build that was
+  disabled, skipped or stuck rather than one that failed.
+
+To force a build: Actions → Build feeds → Run workflow. To test that a failure reaches you: Actions →
+Check feeds → Run workflow with `max_age_hours` set to `0`. Within a few minutes an issue "Check feeds
+failed" appears and lands in your inbox; close it once seen, and the next real failure opens a new one.
+
+### What we can see
+
+The health signals we have today, in the order to check them:
+
+- **Run status.** The Actions tab lists every run of "Build feeds" and "Check feeds" with its outcome,
+  and a failed run is also an open `ops` issue.
+- **Freshness.** The log of a "Check feeds" run prints how many hours old each live feed is.
+- **Last run.** The footer of every page shows the date and time of the build that wrote it.
+
+GitHub Pages keeps no access logs and the site carries no tracking, so how often the feeds are fetched
+(the closest thing to a subscriber count) and how many people visit the pages cannot be seen today.
+That is left for #24, which proposes reading both from Cloudflare once the custom domain is in front
+of the site.
+
 ## Known limits
 
 - The UEFA endpoint and the FIBA page are undocumented and can change without notice. Their terms do not
@@ -73,9 +118,6 @@ npm run build
 - Each timed game carries a reminder one hour before kickoff. Apple Calendar shows it unless "Remove alarms"
   is on for the subscription; Google Calendar is believed to ignore embedded reminders, but lets you set a
   notification for the whole calendar in its settings. Outlook is unverified.
-- GitHub disables scheduled workflows after 60 days without repository activity and sends a warning email
-  first. Push any commit or click "Enable workflow" under Actions to resume. The "last run" date on the
-  page shows whether the job is still running.
 - Games with no announced time appear as all-day entries marked "time not announced".
 
 Background on the data sources: [docs/research-2026-10-02.md](docs/research-2026-10-02.md).

@@ -105,6 +105,23 @@ test('landing lists every team with its stripe and a link to its page', () => {
   assert.match(html, /<link rel="icon" href="favicon\.svg" type="image\/svg\+xml">/)
 })
 
+test('landing tells chat apps its address and its share image', () => {
+  const html = renderLanding([{ team: football, games: [timed] }, { team: basketball, games: [] }], now, site)
+  assert.match(html, /<meta property="og:title" content="scarf · Your colours, in your calendar">/)
+  assert.match(html, /<meta property="og:description" content="Every game of the national teams we follow in your calendar: kickoff, venue, TV and tickets, updated daily\.">/)
+  assert.match(html, /<meta property="og:url" content="https:\/\/example\.github\.io\/scarf\/">/)
+  assert.match(html, /<meta property="og:image" content="https:\/\/example\.github\.io\/scarf\/share\.png">/)
+  assert.match(html, /<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">/)
+  assert.match(html, /<meta name="twitter:card" content="summary_large_image">/)
+})
+
+test('without a public address the landing leaves out the tags that need an absolute address', () => {
+  const html = renderLanding([{ team: football, games: [timed] }], now)
+  assert.match(html, /<meta property="og:title" content="scarf · Your colours, in your calendar">/)
+  assert.match(html, /<meta name="twitter:card" content="summary_large_image">/)
+  assert.doesNotMatch(html, /og:url|og:image/)
+})
+
 test('nothing a fan reads breaks the voice rules', () => {
   const pages = [teamPage([timed, unscheduled], site), renderLanding([{ team: football, games: [timed] }], now)]
   for (const html of pages) {
