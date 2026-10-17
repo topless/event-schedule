@@ -158,6 +158,6 @@ test('a new team page shows its flag, its own feed and links every other team', 
 test('both footers carry the motto', () => {
   const pages = [teamPage([timed], site), renderLanding([{ team: football, games: [timed] }], now)]
   for (const html of pages) {
-    assert.match(html, /<span>· Here for the team, the players and the game\.<\/span>/)
+    assert.match(html, /<span>· Wrapped up in the game\.<\/span>/)
   }
 })

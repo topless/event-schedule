@@ -95,6 +95,6 @@ a.card:hover .card-cta { color: var(--ink); }
 .card-cta { margin-top: auto; color: var(--terrace); font-weight: 700; }
 
 /* Footer */
-.site-footer { padding-top: 28px; padding-bottom: 36px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; font-size: 13px; line-height: 1.5; color: var(--stand); text-wrap: balance; }
+.site-footer { padding-top: 28px; padding-bottom: 36px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; font-size: 13px; line-height: 1.5; color: var(--stand); }
 .footer-brand { display: flex; align-items: center; gap: 10px; }
 .footer-brand .wordmark { font-size: 20px; color: var(--ink); }
