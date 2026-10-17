@@ -15,7 +15,10 @@ The "Build feeds" GitHub Actions job runs `npm run build` once a day. The build:
 1. fetches each team's games from the official source (UEFA for football, FIBA for basketball);
 2. adds what no source provides (TV channel, ticket link) from [src/config.ts](src/config.ts) and [src/manual.ts](src/manual.ts);
 3. writes one `dist/{country}/{sport}.ics` per team, its `-alerts` variant, and `dist/index.html`, which GitHub Pages serves;
-4. records the games it saw in [src/known-games.json](src/known-games.json), which the Actions job commits back to
+4. renders a 1200×630 share image per team at `dist/{country}/{sport}/share.png`, the card a chat app
+   shows when someone pastes the team page's address, from [src/share.ts](src/share.ts) with the team's
+   colours and its next game;
+5. records the games it saw in [src/known-games.json](src/known-games.json), which the Actions job commits back to
    `main` when it changed, so the next run can tell a newly announced game from an old one.
 
 If a source cannot be fetched or its format changed, the build fails and the last published files stay online.
@@ -39,7 +42,9 @@ Pages, set the source to "GitHub Actions"; the first run fails until that is don
 
 ## Running it
 
-Needs Node 22.18 or newer.
+Needs Node 22.18 or newer. The share images need nothing else: they are laid out by Satori and
+rasterised by resvg (WebAssembly), with the two brand fonts bundled in [fonts/](fonts/) under the
+SIL Open Font License, so no browser and no network beyond the two sources.
 
 ```bash
 npm install

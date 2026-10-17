@@ -1,15 +1,16 @@
 import { cp, mkdir, readFile, writeFile } from 'node:fs/promises'
-import { alertsFeedPath, feedPath, teams, type Team } from './config.ts'
+import { alertsFeedPath, feedPath, sharePath, teams, type Team } from './config.ts'
 import { fetchFibaGames } from './fiba.ts'
 import { byStart, withDetails, type Game } from './game.ts'
 import { toIcs } from './ics.ts'
 import { announced, parse, recordSeen, serialize } from './known-games.ts'
 import { manual } from './manual.ts'
 import { renderLanding, renderTeamPage, type Section } from './page.ts'
+import { renderShareImage } from './share.ts'
 import { fetchUefaGames } from './uefa.ts'
 
-// Fetches every team's upcoming games and writes one calendar feed and one page per team, the
-// landing page, and the brand assets (stylesheets, icons, flags) next to them.
+// Fetches every team's upcoming games and writes one calendar feed, one page and one share image
+// per team, the landing page, and the brand assets (stylesheets, icons, flags) next to them.
 // Any failure aborts the whole build, so the previously published files stay in place.
 
 const now = new Date()
@@ -48,8 +49,9 @@ for (const team of teams) {
   console.log(`${team.name}: ${games.length} upcoming games, ${seen.fresh.length} new`)
 }
 for (const section of sections) {
-  const { country, sport } = section.team
-  await writeFile(`dist/${country}/${sport}/index.html`, renderTeamPage(section, teams, now, siteUrl))
+  const { team, games } = section
+  await writeFile(`dist/${team.country}/${team.sport}/index.html`, renderTeamPage(section, teams, now, siteUrl))
+  await writeFile(`dist/${sharePath(team)}`, await renderShareImage(team, games[0], siteUrl))
 }
 await writeFile('dist/index.html', renderLanding(sections, now))
 await cp('assets', 'dist', { recursive: true })

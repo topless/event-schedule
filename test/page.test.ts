@@ -91,6 +91,23 @@ test('team page names the federation of its source, and links every team', () =>
   assert.match(football_, /fonts\.googleapis\.com\/css2\?family=Albert\+Sans[^"]*Bricolage\+Grotesque[^"]*display=swap/)
 })
 
+test('team page tells chat apps its title, description and share image', () => {
+  const html = teamPage([timed], site)
+  assert.match(html, /<meta property="og:title" content="Greece football · scarf">/)
+  assert.match(html, /<meta property="og:description" content="Every game of the Greece men's national football team in your calendar: kickoff, venue, TV and tickets, updated daily\.">/)
+  assert.match(html, /<meta property="og:url" content="https:\/\/example\.github\.io\/scarf\/greece\/football\/">/)
+  assert.match(html, /<meta property="og:image" content="https:\/\/example\.github\.io\/scarf\/greece\/football\/share\.png">/)
+  assert.match(html, /<meta property="og:image:width" content="1200">\n<meta property="og:image:height" content="630">/)
+  assert.match(html, /<meta name="twitter:card" content="summary_large_image">/)
+})
+
+test('without a public address the page leaves out the tags that need an absolute address', () => {
+  const html = teamPage([timed])
+  assert.match(html, /<meta property="og:title" content="Greece football · scarf">/)
+  assert.match(html, /<meta name="twitter:card" content="summary_large_image">/)
+  assert.doesNotMatch(html, /og:url|og:image/)
+})
+
 test('team page says so when no games are announced', () => {
   const html = teamPage([], site)
   assert.match(html, /No games announced yet/)
