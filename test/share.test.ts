@@ -74,8 +74,9 @@ test('nothing on a share card breaks the voice rules', () => {
 })
 
 test('landing card carries the brand line, every team by name and no team colours', () => {
-  const card = renderLandingShareCard(teams, site)
-  assert.equal(teamsLine(teams), 'Greece football · Greece basketball')
+  // Two teams stand in for the whole list, so adding a team does not touch this test.
+  const card = renderLandingShareCard([football, basketball], site)
+  assert.equal(teamsLine([football, basketball]), 'Greece football · Greece basketball')
   assert.match(text(card), /scarf .*National teams · Football and basketball .*Your colours, in your calendar\. .*TEAMS Greece football · Greece basketball/)
   assert.match(text(renderLandingShareCard([football], site)), /National teams · Football /)
   // An ink band where a team's stripe would be, the large mark in terrace red and wool.

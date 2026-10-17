@@ -88,40 +88,36 @@ export const teams: Team[] = [
     },
   },
   {
-    country: 'denmark',
-    sport: 'football',
-    name: 'Denmark football',
-    side: "Denmark men's national football team",
-    colours: ['#C60C30', '#FFFFFF'],
-    flag: 'flag-dk.svg',
-    source: { kind: 'uefa', teamId: 35 },
+    country: 'france',
+    sport: 'basketball',
+    name: 'France basketball',
+    side: "France men's national basketball team",
+    colours: ['#0055A4', '#FFFFFF', '#EF4135'],
+    flag: 'flag-fr.svg',
+    // The same competition page as Greece and Spain; one request serves all three.
+    source: { kind: 'fiba', event: 'fiba-basketball-world-cup-2027-european-qualifiers', teamCode: 'FRA' },
     defaults: {
-      // TV 2 carries the Nations League 2026-27 (checked 2026-10-17 on its own match page,
-      // https://sport.tv2.dk/fodbold/uefa-nations-league-a/herrer/kamp/2026-11-14-portugal-mod-danmark);
-      // DR's preview of Denmark v Portugal also sends viewers to TV 2:
-      // https://www.dr.dk/sporten/fodbold/landsholdet/portugals-spil-kan-blive-sluppet-fri-mod-danmark-vurderer-kommentator
-      tv: 'TV 2 (Danish TV)',
-      // DBU's fan site: sale dates and a link per game. Home games sell in three waves, members first.
-      tickets: 'https://www.fordanmark.dk/billetter/herrelandsholdet/billetsalg/',
+      // The team's official calendar lists every 2027 qualifier on beIN Sports (checked 2026-10-17):
+      // https://www.teamfrancebasket.com/schedule/2026
+      tv: 'beIN Sports (French TV)',
+      // The federation's ticket shop, linked from every ffbb.com page.
+      tickets: 'https://billetterie.ffbb.com/fr',
     },
   },
   {
-    country: 'denmark',
+    country: 'germany',
     sport: 'basketball',
-    name: 'Denmark basketball',
-    side: "Denmark men's national basketball team",
-    colours: ['#C60C30', '#FFFFFF'],
-    flag: 'flag-dk.svg',
-    // Denmark went out in the first round of the 2027 World Cup qualifiers and plays the
-    // EuroBasket 2029 pre-qualifiers next (docs/research-2026-10-02.md).
-    source: { kind: 'fiba', event: 'fiba-eurobasket-2029-pre-qualifiers', teamCode: 'DEN' },
+    name: 'Germany basketball',
+    side: "Germany men's national basketball team",
+    colours: ['#000000', '#DD0000', '#FFCC00'],
+    flag: 'flag-de.svg',
+    source: { kind: 'fiba', event: 'fiba-basketball-world-cup-2027-european-qualifiers', teamCode: 'GER' },
     defaults: {
-      // No TV line yet: the federation's deal with SPORT LIVE (2025-11-04) covers the qualifiers
-      // for the 2027 tournaments, not these pre-qualifiers. Re-check when DBBF announces the
-      // November 2026 window:
-      // https://basket.dk/landskampene-er-sikret-sport-live-sender-danmarks-em-og-vm-kvalifikationskampe-i-basketball/
-      // Home games sell through Ticketmaster, linked from https://basket.dk/herrelandsholdet/
-      tickets: 'https://www.ticketmaster.dk/artist/danmarks-basketball-forbund-billetter/1311363',
+      // The federation's preview of the 2027 qualifiers window says "bei MagentaSport" (checked 2026-10-17):
+      // https://www.basketball-bund.de/dbb-herren-world-cup-qualifier-gegen-polen-in-frankfurt/
+      tv: 'MagentaSport (German TV)',
+      // The federation's ticket shop ("Tickets für DBB-Events" on basketball-bund.de).
+      tickets: 'https://www.ticket-onlineshop.com/ols/dbb/',
     },
   },
 ]

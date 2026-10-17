@@ -11,8 +11,8 @@ test('every team has its own frozen feed path, named after the team', () => {
       ['greece/basketball.ics', 'Greece basketball'],
       ['spain/football.ics', 'Spain football'],
       ['spain/basketball.ics', 'Spain basketball'],
-      ['denmark/football.ics', 'Denmark football'],
-      ['denmark/basketball.ics', 'Denmark basketball'],
+      ['france/basketball.ics', 'France basketball'],
+      ['germany/basketball.ics', 'Germany basketball'],
     ],
   )
   for (const team of teams) {

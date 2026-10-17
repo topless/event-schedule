@@ -151,6 +151,6 @@ test('a new team page shows its flag, its own feed and links every other team', 
   assert.match(html, /<a class="btn-primary" href="webcal:\/\/example\.github\.io\/scarf\/spain\/basketball\.ics">/)
   assert.equal(html.match(/class="team-chip"/g)?.length, 6)
   assert.match(html, /href="\.\.\/\.\.\/spain\/basketball\/" style="[^"]*#AA151B[^"]*" aria-current="page"/)
-  assert.match(html, /href="\.\.\/\.\.\/denmark\/basketball\/" style="[^"]*#C60C30[^"]*"/)
+  assert.match(html, /href="\.\.\/\.\.\/germany\/basketball\/" style="[^"]*#000000 0px 18px, #DD0000 18px 36px, #FFCC00 36px 54px[^"]*"/)
   assert.match(html, /Updated daily from FIBA\./)
 })
